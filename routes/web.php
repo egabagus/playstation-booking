@@ -23,6 +23,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::prefix('dashboard')->group(function () {
         Route::get('/products', [ProductController::class, 'index'])->name('products');
+        Route::get('/products/data', [ProductController::class, 'data'])->name('products.data');
     });
 });
 
