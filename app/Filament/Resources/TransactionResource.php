@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enum\PaymentStatus;
 use App\Filament\Resources\TransactionResource\Pages;
 use App\Filament\Resources\TransactionResource\RelationManagers;
 use App\Models\Transaction;
@@ -9,6 +10,7 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -27,11 +29,6 @@ class TransactionResource extends Resource
                     ->required()
                     ->maxLength(255),
                 Forms\Components\DatePicker::make('date'),
-                Forms\Components\TextInput::make('payment_status')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-                Forms\Components\DatePicker::make('payment_date'),
                 Forms\Components\TextInput::make('amount')
                     ->required()
                     ->numeric()
@@ -61,11 +58,9 @@ class TransactionResource extends Resource
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('payment_status')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('payment_date')
-                    ->date()
-                    ->sortable(),
+                    ->badge()
+                    ->formatStateUsing(fn($state) => PaymentStatus::tryFrom($state)?->label() ?? '-')
+                    ->color(fn($state) => PaymentStatus::tryFrom($state)?->color() ?? 'gray'),
                 Tables\Columns\TextColumn::make('amount')
                     ->numeric()
                     ->sortable(),
@@ -95,7 +90,7 @@ class TransactionResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                ViewAction::make()->color('info')
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
